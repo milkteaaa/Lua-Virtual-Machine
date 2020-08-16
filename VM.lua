@@ -74,4 +74,10 @@ table.flip = function(_table)
     return temp
 end
 
+-----------------
+----FUNCTIONS----
+-----------------
+
+
+
     
