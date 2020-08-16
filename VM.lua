@@ -15,20 +15,20 @@ local table = _G.table
 table.new_protected = function(_table, message)
     local proxy = newproxy(true)
     local metatable = getmetatable(proxy)
-    metatable._index = function(_, field)
+    metatable.__index = function(_, field)
         return _table[field]
     end
-    metatable._newindex = function(_, field, value)
+    metatable.__newindex = function(_, field, value)
         if field ~= "Stack" then
             return(message or "This table is inaccessible.")
         else
             _table[field] = value
         end
     end
-    metatable._tostring = function()
+    metatable.__tostring = function()
         return(message or "This table is inaccessible.")
     end
-    metatable._metatable = message or "This table is inaccessible."
+    metatable.__metatable = message or "This table is inaccessible."
     return proxy
 end
 
@@ -78,6 +78,34 @@ end
 ----FUNCTIONS----
 -----------------
 
+local VMState = {}
+lua_newstate = function()
+    return table.insert(VMState, table.new_protected({
+        IsLuaState = {ResetVMStack = false};
+        VMStack = {};
+        LuaNil = {};
+    }, "Current VM State cannot be displayed."))
+end
 
-
+lua_error = function(VMState, message, ...)
+    local arguments = {...}
+    table.shift(arguments, 2)
+    table.insert(arguments, 1)
     
+    local _, err = pcall(function() error(unpack(arguments)) end)
+    warn("VM: "..err)
+    return err
+end
+
+lua_pushstring = function(VMState, string)
+    local stack = VMState.VMStack
+    table.insert(stack, tostring(string))
+    return
+end
+
+lua_pushnil - function(VMState, num)
+    local stack = VMState.VMStack
+    local lua_nil = VMState.LuaNil
+    table.insert(stack, lua_nil)
+    return
+end
