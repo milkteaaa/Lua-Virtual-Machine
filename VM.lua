@@ -103,9 +103,36 @@ lua_pushstring = function(VMState, string)
     return
 end
 
-lua_pushnil - function(VMState, num)
+lua_pushnil = function(VMState, num)
     local stack = VMState.VMStack
     local lua_nil = VMState.LuaNil
     table.insert(stack, lua_nil)
     return
 end
+
+lua_pushboolean = function(VMState, bool)
+    local stack = VMState.VMStack
+    local _bool;
+    bool = string.lower(bool)
+
+    if bool == "true" then
+        _bool = true
+    elseif bool == "false" then
+        _bool = false
+    else
+        error("VM: bad argument #2 - lua_pushboolean: expected parsable string, got "..type(bool))
+    end
+    table.insert(stack, _bool)
+end
+
+lua_printstack = function(VMState)
+    local stack = VMState.VMStack
+    local iterator = 0
+    local value = nil
+    repeat
+        iterator = iterator + 1
+        if iterator ~= 1 then
+            print((iterator - 1), value)
+        end
+        value = stack[iterator]
+    until value == nil
